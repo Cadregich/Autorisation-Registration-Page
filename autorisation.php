@@ -47,7 +47,7 @@
 </body>
 </html>
 <?php 
-$connect = mysqli_connect('localhost', 'root', '', 'atomiccraftr');
+$connect = mysqli_connect('localhost', 'root', '', 'dbname');
 if (!$connect) {
 	die('Ошибка подключения к базе данных');
 }
