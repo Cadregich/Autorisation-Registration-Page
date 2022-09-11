@@ -1,88 +1,139 @@
+<!--
+	Account - Registration, Autorisation, Deautorisation, Delete 
+	Autor: Cadregich
+	Discord: Cadregich#5412
+    File not completed
+-->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Search</title>
+	<title>Registration</title>
 </head>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 <body>
-	<form method="post">
-		<input type="text" name="search">
-		<input type="submit" name="subsear" value="Найти">
-	</form>
-  
-  </body>
+
+<?php if ($_COOKIE['aut'] != ''): 
+ echo 'Привет! '.$_COOKIE['aut']?>
+<?php endif;?>
+
+<?php if ($_COOKIE['aut'] == ''): ?>
+	<h1>Регистрация</h1>
+<form method="post">
+	<input type="text" name="username" placeholder="name">
+	<input type="text" name="password" placeholder="password">
+	<input type="text" name="email" placeholder="email">
+	<input type="submit" name="cont">
+</form>	
+<?php endif; ?>
+ <?php if ($_COOKIE['aut'] == ''): ?>
+ 		<h1 style="margin-top: 300px;">Авторизация</h1>
+<form method="post">
+	<input type="text" name="ausername" placeholder="name">
+	<input type="password" name="apassword" placeholder="password">
+	<input type="submit" name="acont">
+</form>
+  <?php endif;?>
+  <?php if ($_COOKIE['aut'] != ''): ?>
+<form method="post" style="margin-top: 300px;">
+	<input type="submit" name="deaut" value="Деавторизоваться">
+</form>
+<?php endif; ?>
+<?php if ($_COOKIE['aut'] != ''): ?>
+<form method="post" style="margin-top: 50px;">
+	<input type="submit" name="delete" value="Удалить аккаунт">
+</form>
+<?php endif; ?>
+</body>
 </html>
-	<?php 
-$search = trim(mb_strtolower($_POST['search']));
-$subsear = $_POST['subsear'];
+<?php 
+$connect = mysqli_connect('localhost', 'root', '', 'atomiccraftr');
+if (!$connect) {
+	die('Ошибка подключения к базе данных');
+}
+$url_a = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+//Регистрация аккаунта
+$username = filter_var(trim($_POST['username']), FILTER_SANITIZE_STRING);
+$password = filter_var(trim($_POST['password']), FILTER_SANITIZE_STRING);
+$newpassword = crypt($password,'oased312GHKASJ0');
+$email = filter_var(trim($_POST['email']), FILTER_SANITIZE_STRING);
 
-$card_gsp ='
-	<div class="cardforshop">
-   <div class="card" style="width: 16rem; height: 21rem; margin-top: 70px;">
-     <div class="card-image">
-       <img src="/assets/images/Hybrid_Solar_Panel_y2uSWXI.png" height="100px" width="100px"></div>       
-          <div class="card-body">
-            <h5 class="card-title">Гибридная солнечная панель</h5>
-            <p class="card-text">Advanced Solar Panels</p>
-            <p class="card-tex-cost">99 руб.</p>
-         <a href="https://developer.mozilla.org/ru/docs/Web/HTML/Element/p" class="buttonss dasdasds">Купить</a>
-     </div>
-   </div>
-</div>';
+$name = mysqli_query($connect, "SELECT `name` FROM `users`");
+$name = mysqli_fetch_all($name);
+foreach ($name as $key => $value) {
+	foreach ($value as $k => $v) {
+		$names .= $v." ";
+	}
+}
+$names = strval($names);
+$names = explode(" ", $names);
 
+$mail = mysqli_query($connect, "SELECT `email` FROM `users`");
+$mail = mysqli_fetch_all($mail);
+foreach ($mail as $key => $value) {
+	foreach ($value as $k => $v) {
+		$emails .= $v." ";
+	}
+}
+$emails = strval($emails);
+$emails = explode(" ", $emails);
 
-if (isset($subsear)) {
-  if ($search != 'гибридка' && $search != 'гибридная солнечная панель') {
-     preg_match("/$search/", 'гибрдная солнечная панель', $match);
-     if ($match[0] != '') {
-  } else $card_gsp = null;
+if (isset($_POST['cont'])) {
+	if ($email == '' || $newpassword == '' || $username == '') {
+		echo 'Заполните все поля';
+	} else { if (in_array($username,$names) === true) {
+		echo 'Такое имя уже занято';
+	} else { if (in_array($email,$emails) === true) {
+		 echo "Эта почта уже занята";
+		} else {
+         mysqli_query($connect, "INSERT INTO `users` (`email`, `password`, `name`) VALUES ('$email','$newpassword','$username')");
+         mysqli_close($connect);
+         exit();
+      }
+    }
   }
 }
-echo $card_gsp;
-
-$card_qsp ='
-  <div class="cardforshop">
-   <div class="card" style="width: 16rem; height: 21rem; margin-top: 70px;">
-     <div class="card-image">
-       <img src="/assets/images/Hybrid_Solar_Panel_y2uSWXI.png" height="100px" width="100px"></div>       
-          <div class="card-body">
-            <h5 class="card-title">Квантовая солнечная панель</h5>
-            <p class="card-text">Advanced Solar Panels</p>
-            <p class="card-tex-cost">99 руб.</p>
-         <a href="https://developer.mozilla.org/ru/docs/Web/HTML/Element/p" class="buttonss dasdasds">Купить</a>
-     </div>
-   </div>
-</div>';
-
-if (isset($subsear)) {
-  if ($search != 'квант' && $search != 'квант панель') {
-  preg_match("/$search/", 'квантовая солнечная панель', $match);
-  if ($match[0] != '') {
-  } else $card_qsp = null;
-  }
+//Авторизация аккаунта
+$pass = mysqli_query($connect, "SELECT `password` FROM `users`");
+$pass = mysqli_fetch_all($pass);
+foreach ($pass as $key => $value) {
+	foreach ($value as $k => $v) {
+		$passes .= $v." ";
+	}
 }
-echo $card_qsp;
 
-$card_qc ='
-  <div class="cardforshop">
-   <div class="card" style="width: 16rem; height: 21rem; margin-top: 70px;">
-     <div class="card-image">
-       <img src="/assets/images/Hybrid_Solar_Panel_y2uSWXI.png" height="100px" width="100px"></div>       
-          <div class="card-body">
-            <h5 class="card-title">Квантовый нагрудник</h5>
-            <p class="card-text">Advanced Solar Panels</p>
-            <p class="card-tex-cost">99 руб.</p>
-         <a href="https://developer.mozilla.org/ru/docs/Web/HTML/Element/p" class="buttonss dasdasds">Купить</a>
-     </div>
-   </div>
-</div>';
-if (isset($subsear)) {
-  if ($search != 'квант нагрудник' && $search != 'квант') {
-    preg_match("/$search/", 'квантовый нагрудник', $match);
-  if ($match[0] != '') {
-  } else $card_qс = null;
-  } 
+$passes = strval($passes);
+$passes = explode(" ", $passes);
+
+if (isset($_POST['acont'])) {
+	$ausername = filter_var(trim($_POST['ausername']), FILTER_SANITIZE_STRING);
+	$apassword = filter_var(trim($_POST['apassword']), FILTER_SANITIZE_STRING);
+
+$check = mysqli_query($connect,"SELECT `password` FROM `users` WHERE `users`.`name` = '$ausername'");
+$check = mysqli_fetch_all($check);
+
+	if ($ausername == null || $apassword == null) {
+		echo "Введите имя и пароль";
+	} else {
+      if (in_array($ausername, $names) == null) {
+      echo "Такой пользователь не найден";
+    } else {if (password_verify($apassword, $check[0][0]) === false) {
+    	echo "Неверный пароль";
+    } else  {$autarisated = $ausername;
+             setcookie('aut',$autarisated,time()+180, "/");
+             header('Location:'. $url_a);}
+            }
+        }
+	}
+//Деавторизация
+if (isset($_POST['deaut'])) {
+	setcookie('aut',$autarisated,time()-3600);
+    header('Location:'. $url_a);
 }
-echo $card_qc;
+//Удаление аккаунта
+if (isset($_POST['delete'])) {
+mysqli_query($connect,"DELETE FROM `users` WHERE `users`.`name` = '$_COOKIE[aut]'");
+setcookie('aut',$autarisated,time()-3600);
+header('Location:'. $url_a);
+}
+ ?>
